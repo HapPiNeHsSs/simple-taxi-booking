@@ -1,5 +1,6 @@
 # Simple Taxi Booking System #
-Once the service is running, you can also view this README at the service index `/`
+- Once the service is running, you can also view this README at the service index `/`
+- This service also includes a Scenario Player that you can have fun with ^_^
 
 ## Running via Python3 ##
 To run simply type: `python3 run.py`
