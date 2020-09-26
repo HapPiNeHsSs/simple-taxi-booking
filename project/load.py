@@ -26,10 +26,10 @@ with app.app_context():
 
 @app.route("/")
 def index():
-    """This will just load the README.md
+    """This will just load the README.md at the index
 
     Returns:
-        [type] -- [description]
+        README -- render of the README.md
     """
     readme_file = open("README.md", "r")
     md_template_string = markdown.markdown(
