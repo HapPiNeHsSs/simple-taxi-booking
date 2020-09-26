@@ -1,0 +1,309 @@
+<html>
+  <style>
+    :root {
+      --grid-cols: 1;
+      --grid-rows: 1;
+    }
+
+    #container {
+      display: grid;
+      grid-gap: 0em;
+      grid-template-rows: repeat(var(--grid-rows), 0fr);
+      grid-template-columns: repeat(var(--grid-cols), 0fr);
+    }
+
+    .grid-item {
+      padding: 0em;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    .divTable{
+      display: table;
+      width: 100%;
+    }
+    .divTableRow {
+      display: table-row;
+    }
+    .divTableHeading {
+      background-color: #EEE;
+      display: table-header-group;
+    }
+    .divTableCell, .divTableHead {
+      border: 1px solid #999999;
+      display: table-cell;
+      padding: 3px 10px;
+    }
+    .divTableHeading {
+      background-color: #EEE;
+      display: table-header-group;
+      font-weight: bold;
+    }
+    .divTableFoot {
+      background-color: #EEE;
+      display: table-footer-group;
+      font-weight: bold;
+    }
+    .divTableBody {
+      display: table-row-group;
+    }
+  </style>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+  var interval = ''
+  $( document ).ready(function() {
+    const container = document.getElementById("container");
+
+    function makeRows(rows, cols) {
+    x_offset = rows/2|0;
+    y_offset = cols/2|0;
+
+      container.style.setProperty('--grid-rows', rows);
+      container.style.setProperty('--grid-cols', cols);
+      for (c = 0, x = 0-x_offset, y = 0-y_offset; c < (rows * cols); c++) {    
+        let cell = document.createElement("div");
+        cell.style.height="0.85em";
+        cell.style.width="0.85em";
+        cell.style.background="white";
+        cell.id = id = x+","+y;
+        cell.className = ("grid-item");
+        container.appendChild(cell);
+        x++;
+        if(x+x_offset == rows){
+          x = 0-x_offset;
+          y++;
+
+        }
+      };      
+
+    };  
+
+    getData = function(){
+      $.getJSON( "/api/get_all_data", function( data ) {      
+        $.each( data, function( key, val ) {
+          if (key =="taxis" ){            
+            $.each( val, function( key, taxi ) {
+              if((taxi.coordinate_q).length > 0){              
+                if (taxi.state==1){
+                  marker = "palegreen";
+                }
+                if (taxi.state==2){
+                  marker = "lightblue";
+                }
+                $.each( taxi.coordinate_q.reverse(), function( key, coord ) {                
+                  if (coord.join()==taxi.pickup.join()){
+                    marker = "lightblue";
+                  }          
+                  id = coord[0]+"\\,"+coord[1];
+                  $("#"+id).css('background',marker)
+                  $("#"+id).text(taxi.id);          
+                });
+              }
+              if (taxi.state==1){
+                passenger = taxi.pickup;
+                id = passenger[0]+"\\,"+passenger[1];
+                $("#"+id).css('background',"lightcoral")
+                $("#"+id).text(taxi.id);
+              }
+              if (taxi.state!=0){
+                destination = taxi.destination;
+                id = destination[0]+"\\,"+destination[1];
+                $("#"+id).css('background',"mediumpurple")
+                $("#"+id).text(taxi.id);
+              }
+            });
+            $.each( val, function( key, taxi ) {
+              position = taxi.position;            
+              id = position[0]+"\\,"+position[1];
+              $("#"+id).text(taxi.id);
+              $("#"+id).css('background',"gold")
+              if (taxi.state==2){$("#"+id).css('border-color',"red")}
+            })          
+          }
+          else if(key=="tick"){
+            $('#ticktime').val(val)
+          }   
+        });    
+      });
+    }
+
+    clear = function(){
+      $(".grid-item").css('background',"white")
+      $(".grid-item").css('border-color',"")
+      $(".grid-item").text("")
+    }
+
+    $( "#tick_button" ).click(function() {
+      $.post( "/api/tick", function( data ) {
+        clear()
+        getData()
+        $('#message').val($('#message').val()+"\n"+JSON.stringify(data));
+        $('#message').scrollTop($('#message')[0].scrollHeight);
+      })
+    });
+
+    $( "#reset_button" ).click(function() {
+      $.ajax({
+          url: "/api/reset",
+          type: 'PUT',
+          success: function(data) {
+            clear()
+            getData()
+            $('#message').val($('#message').val()+"\n"+JSON.stringify(data));
+            $('#message').scrollTop($('#message')[0].scrollHeight);
+          }
+      });    
+    });
+
+    $( "#add_taxi" ).click(function() {
+      $.ajax({
+          url: "/api/add_taxi",
+          type: 'PUT',
+          success: function(data) {
+            clear()
+            getData()
+            $('#message').val($('#message').val()+"\n"+JSON.stringify(data));
+            $('#message').scrollTop($('#message')[0].scrollHeight);
+          }
+      });    
+    });
+
+    $( "#book_button" ).click(function() {
+      p_x=parseInt($("#p_x").val())
+      p_y=parseInt($("#p_y").val())
+      d_x=parseInt($("#d_x").val())
+      d_y=parseInt($("#d_y").val())
+      
+      $("#p_x").val("")
+      $("#p_y").val("")
+      $("#d_x").val("")
+      $("#d_y").val("")
+      obj = {"source": {"x": p_x,"y": p_y},"destination": {"x": d_x,"y": d_y}}
+      console.log(JSON.stringify(obj))
+      $.ajax({
+        url: '/api/book',
+        type: 'post',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify(obj),
+        success: function (data) {
+          clear()
+          getData()
+          $('#message').val($('#message').val()+"\n"+JSON.stringify(data));
+          $('#message').scrollTop($('#message')[0].scrollHeight);
+        },
+        
+      });
+    });
+
+    $( "#regrid" ).click(function() {
+      $("#container").empty()
+      rows=parseInt($("#rows").val())
+      columns=parseInt($("#columns").val())
+      makeRows(rows, columns);
+      getData();
+    });
+
+    $( "#clear_output" ).click(function() {
+      $('#message').val("");
+    });
+
+    $( "#auto_tick" ).click(function(){      
+      if($(this).is(":checked")){
+        $( "#tick_button" ).attr("disabled", true);
+        interval = setInterval(function(){
+          $.post( "/api/tick", function( data ) {
+            clear()
+            getData()
+            $('#message').val($('#message').val()+"\n"+JSON.stringify(data));
+            $('#message').scrollTop($('#message')[0].scrollHeight);                        
+          })
+        },500);
+      }
+      else if($(this).is(":not(:checked)")){
+        $( "#tick_button" ).removeAttr("disabled");
+        clearInterval(interval)
+      } 
+    })
+    
+    makeRows(61, 61);
+    getData();
+    
+  });
+    
+  </script>
+
+  <body style="font-size:0.8em">
+    <div id="container" style="font-size:0.9em; align: ">
+
+    </div>
+
+    <hr>
+
+    <div class="divTable" style="width: 100%; height: 15em;" >
+      <div class="divTableBody">
+        <div class="divTableRow">
+          <div class="divTableCell" style="width: 10em;">
+            Commands
+            <br><br>
+            <button id="reset_button">Reset</button>
+            <br><br>
+            <button id="add_taxi">Add Taxi</button>
+            <br><br>
+            <button id="tick_button">Tick</button>
+            <input id="auto_tick" type="checkbox" > Auto Tick </input>
+            <br><br>
+            Tick Time:
+            <textarea id="ticktime" cols="5" rows="1" name="message" readonly="true" style="font-size:11px;padding:0px;resize: none;vertical-align:middle;">
+            </textarea>
+
+          </div>
+          <div class="divTableCell" style="width:12em;">
+            Book Here<br><br>
+            Pickup X: <input id="p_x" style="width: 3em">
+            <br>
+            Pickup Y: <input id="p_y" style="width: 3em">
+            <br><br>
+            Destination X: <input id="d_x" style="width: 3em">
+            <br>
+            Destination Y: <input id="d_y" style="width: 3em">
+            <br><br><button id="book_button">Book</button>
+          </div>
+          <div class="divTableCell" style="width: 15em;">
+            Grid Size<br>
+            (0,0) will be about middle.
+            <br>
+            (Rowsdiv2, Colsdiv2)<br><br>
+            Rows: <input id="rows" style="width: 3em">
+            <br>
+            Columns: <input id="columns" style="width: 3em">
+            <br><br><button id="regrid">Redraw Grid</button>
+          </div>
+          <div class="divTableCell">
+            <label>API Call output</label></br></br>
+            <textarea id="message" cols="60" name="message" readonly="true" style="font-size:11px;padding:0px;height:10em">
+            </textarea>
+            <br><br><button id="clear_output">Clear</button>
+          </div>
+          <div class="divTableCell">
+            Legends and Information<br><br>
+            <div><div style="height: 0.85em; width: 0.85em; background: gold; text-align:center; display: inline-block;">1</div>: Taxi</div>
+            <div><div style="height: 0.85em; width: 0.85em; background: lightcoral; text-align:center; display: inline-block;">1</div>: Passenger</div>
+            <div><div style="height: 0.85em; width: 0.85em; background: gold; border: 1px solid red; text-align:center; display: inline-block;">1</div>: Taxi with passegger</div>
+            <div><div style="height: 0.85em; width: 0.85em; background: mediumpurple; text-align:center; display: inline-block;">1</div>: Destination</div>
+            <div><div style="height: 0.85em; width: 0.85em; background: palegreen; text-align:center; display: inline-block;">1</div>: Route to Passenger</div>
+            <div><div style="height: 0.85em; width: 0.85em; background: lightblue; text-align:center; display: inline-block;">1</div>: Route to Destination</div>
+            <br>
+            <li>The ID of the taxi that owns the Taxi, Passenger, Destination and Paths is shown inside the Grid.
+            <li>Checking Auto Tick will call tick every 500ms. Essentially, this will playout the car movements. You can book, reset, add taxi or change grid while this is happening.
+            <li>When taxis overlap, the highest ID is shown in the grid
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </body>
+
+
+</html>
