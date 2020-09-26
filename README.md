@@ -1,4 +1,6 @@
 # Simple Taxi Booking System #
+Once the service is running, you can also view this README at the service index `/`
+
 ## Running via Python3 ##
 To run simply type: `python3 run.py`
 
