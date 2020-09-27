@@ -1,6 +1,7 @@
 # Simple Taxi Booking System #
 - Once the service is running, you can also view this README at the service index `/`
 - This service also includes a Scenario Player that you can have fun with ^_^
+- This Service is also available at [`taxi.urzo.online`](https://taxi.urzo.online/)
 
 ## Running via Python3 ##
 To run simply type: `python3 run.py`
@@ -37,7 +38,7 @@ This will run the service on port **8080**
 
 I had some time so I made a quick and dirty scenario player at endpoint `/player`.
 
-If you are viewing this README.md as a served page of this project, [click here](/player) to run the player.
+You can view this scenario player at  [`taxi.urzo.online/player`](https://taxi.urzo.online/player) 
 
 The player uses all the APIs below but with a UI (ugly interface haha)
 
