@@ -4,7 +4,18 @@
 - This Service is also available at [`taxi.urzo.online`](https://taxi.urzo.online/)
 
 ## Running via Python3 ##
-To run simply type: `python3 run.py`
+
+Make sure you have these requirements
+- Python 3.8
+- pip3
+
+It's also good to have separate python environments. You can read about that [here](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#installing-virtualenv)
+
+At this point, you must have activated your environment as well if you have chosen to have one.
+
+To Install requirements run `pip install -r requirements.txt`
+
+To Run the Service run `python3 run.py`
 
 The service will run on port **8080**
 
@@ -38,7 +49,7 @@ This will run the service on port **8080**
 
 I had some time so I made a quick and dirty scenario player at endpoint `/player`.
 
-You can view an online version of this scenario player at  [`taxi.urzo.online/player`](https://taxi.urzo.online/player) 
+You can view an online version of this scenario player at  [`taxi.urzo.online/player`](https://taxi.urzo.online/player)
 
 The player uses all the APIs below but with a UI (ugly interface haha)
 
@@ -60,7 +71,7 @@ This will also create the initial tables if it's blank. You can specify the numb
     
     Returns:
         json -- {"message":f"State Reset", "taxi_count":<taxi_count>}
-
+---
 **book:** Make a car booking
     
     METHOD: POST
@@ -70,7 +81,7 @@ This will also create the initial tables if it's blank. You can specify the numb
     
     Returns:
         json --  { "car_id": id, "total_time":time_unit_to_finish}
-
+---
 **tick:** Moves the time unit one step
     
     METHOD: post
@@ -78,7 +89,7 @@ This will also create the initial tables if it's blank. You can specify the numb
     
     Returns:
         json -- {"message":"Time Has Moved", "tick_count":<tick_count>})
-
+---
 **get_all_data:** Gets all the data for the taxis and the tick time
 
     METHOD: GET
@@ -86,7 +97,7 @@ This will also create the initial tables if it's blank. You can specify the numb
     
     Returns:
         json --  {"taxis":{1:<taxi_data>, 2:<taxi_data>, 3:<taxi_data>}, "tick":7}
-
+---
 **add_taxi:** API call to increase number of available taxis
     
     ENDPOINT: /api/add_taxi
