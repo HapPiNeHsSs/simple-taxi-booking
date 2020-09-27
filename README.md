@@ -38,7 +38,7 @@ This will run the service on port **8080**
 
 I had some time so I made a quick and dirty scenario player at endpoint `/player`.
 
-You can view this scenario player at  [`taxi.urzo.online/player`](https://taxi.urzo.online/player) 
+You can view an online version of this scenario player at  [`taxi.urzo.online/player`](https://taxi.urzo.online/player) 
 
 The player uses all the APIs below but with a UI (ugly interface haha)
 
